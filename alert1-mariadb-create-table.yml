@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mariadb-alert-rules
+spec:
+  groups:
+  - name: example-mariadb-alert
+    rules:
+    - alert: create-table-alert
+      expr: mysql_global_status_commands_total{job="metrics-demo/pod-mariadb-monitor", command="create_table"} >= 2
+      annotations:
+        message: Se han creado mas de dos tablas en la base de datos
+      for: 1s
+      labels:
+        severity: critical

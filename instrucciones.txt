@@ -1,0 +1,100 @@
+OpenShift Container Platform incluye una pila de monitoreo preconfigurada, preinstalada y autoactualizable que brinda monitoreo para los componentes centrales de la plataforma. OpenShift Container Platform ofrece las mejores prácticas de monitoreo listas para usar. Se incluye un conjunto de alertas de forma predeterminada que notifican inmediatamente a los administradores del clúster sobre problemas con un clúster. Los paneles predeterminados de la consola web de OpenShift Container Platform incluyen representaciones visuales de las métricas del clúster para ayudarlo a comprender rápidamente el estado de su clúster.
+
+Después de instalar OpenShift Container Platform 4.6, los administradores de clústeres pueden habilitar opcionalmente la supervisión de proyectos definidos por el usuario. Al usar esta función, los administradores de clústeres, los desarrolladores y otros usuarios pueden especificar cómo se monitorean los servicios y los pods en sus propios proyectos. Luego, puede consultar métricas, revisar paneles y administrar las reglas de alerta y los silencios para sus propios proyectos en la consola web de OpenShift Container Platform.
+
+
+Componentes de monitoreo de plataforma predeterminados. Un conjunto de componentes de supervisión de plataforma se instala en el proyecto de supervisión de openshift de forma predeterminada durante una instalación de OpenShift Container Platform. Esto proporciona supervisión para los componentes centrales de OpenShift Container Platform, incluidos los servicios de Kubernetes. La pila de supervisión predeterminada también permite la supervisión remota del estado de los clústeres. Estos componentes se ilustran en la sección Instalado por defecto en el siguiente diagrama.
+
+Componentes para monitorear proyectos definidos por el usuario. Después de habilitar opcionalmente el monitoreo para proyectos definidos por el usuario, se instalan componentes de monitoreo adicionales en el proyecto openshift-user-workload-monitoring. Esto proporciona monitoreo para proyectos definidos por el usuario. Estos componentes se ilustran en la sección Usuario en el siguiente diagrama.
+
+
+openshift-monitoring
+Prometheus Operator: (PO) en el proyecto de monitoreo de openshift crea, configura y administra las instancias de la plataforma Prometheus y las instancias de Alertmanager. También genera automáticamente configuraciones de destino de monitoreo basadas en consultas de etiquetas de Kubernetes.
+
+Prometheus: Prometheus es el sistema de supervisión en el que se basa la pila de supervisión de OpenShift Container Platform. Prometheus es una base de datos de series de tiempo y un motor de evaluación de reglas para métricas. Prometheus envía alertas a Alertmanager para su procesamiento.
+
+Prometheus Adapter: (PA) El adaptador de Prometheus (PA en el diagrama anterior) traduce las consultas de pod y nodo de Kubernetes para su uso en Prometheus. Las métricas de recursos que se traducen incluyen métricas de utilización de memoria y CPU. Prometheus Adapter expone la API de métricas de recursos del clúster para el ajuste de escala automático horizontal del pod. El adaptador de Prometheus también lo utilizan los comandos oc adm top nodes y oc adm top pods.
+
+AlertManager: El servicio Alertmanager maneja las alertas recibidas de Prometheus. Alertmanager también es responsable de enviar las alertas a los sistemas de notificación externos.
+
+Thanos Querier: Thanos Querier agrega y, opcionalmente, deduplica las métricas y métricas centrales de OpenShift Container Platform para proyectos definidos por el usuario en una única interfaz de múltiples inquilinos.
+
+openshift-user-workload-monitoring
+Prometheus Operator: Prometheus Operator (PO) en el proyecto openshift-user-workload-monitoring crea, configura y administra instancias de Prometheus y Thanos Ruler en el mismo proyecto.
+
+Prometheus: Prometheus es el sistema de monitoreo a través del cual se proporciona monitoreo para proyectos definidos por el usuario. Prometheus envía alertas a Alertmanager para su procesamiento.
+
+Thanos Ruler: Thanos Ruler es un motor de evaluación de reglas para Prometheus que se implementa como un proceso separado. En OpenShift Container Platform 4.6, Thanos Ruler proporciona evaluación de alertas y reglas para el seguimiento de proyectos definidos por el usuario.
+
+#####################
+Para configurar los componentes core de OpenShift se debe crear el config map 
+cluster-monitoring-config - en openshift-monitoring : permisos cluster-admin y oc
+
+oc -n openshift-monitoring get configmap cluster-monitoring-config
+
+Si no existe: crear uno vacio
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+
+oc apply -f cluster-monitoring-config.yaml
+
+===============================
+Creación del config map para los proyectos de los usuarios
+user-workload-monitoring-config - en openshift-user-workload-monitoring: permisos cluster-admin y oc
+
+Para editar la configuración es necesario ser cluster-admin o contar con el rol user-workload-monitoring-config-edit en el proyecto openshift-user-workload-monitoring
+
+
+#################Demos:
+
+Service Monitor
+1.- Desplegar la aplicacion prom-app (.yml)
+2.- Exposner la ruta y mostrar el contexto /metrics
+3.- Crear el Service Monitor (.yml)
+4.- Hacer Query en OpenShift Console
+
+PodMonitor
+1.- oc new-app --name=mariadb --docker-image=docker.io/library/mariadb -e MYSQL_USER=user -e MYSQL_PASSWORD=user -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=database
+2.- Editar el deployment mariadb, agregar el exporter de mysql
+      - env:
+        - name: DATA_SOURCE_NAME
+          value: "root:root@(127.0.0.1:3306)/database"
+        image: prom/mysqld-exporter
+        name: mariadb-exporter
+        ports:
+        - containerPort: 9104
+          protocol: TCP
+          name: mariadb-metrics
+3.- Crear el NodeMonitor
+4.- Mostrar las metricas, exponiendo el despliegue y el servicio
+    oc expose deployment/mariadb --name=mariadb-metrics --port=9104 --target-port=9104
+    oc expose service mariadb-metrics
+5.- Hacer un query en OpenShift Console mysql_global_status_commands_total{command="create_table"} 0
+
+######################################
+Aletrtas:
+La UI de alertas permite administrar:
+Alerting rules: Serie de condiciones que describen un estado particular del cluster. Las alertas se activan cuando se cumplen estas condiciones. A la regla se le puede definir una gravedad.
+Alerts: Una alerta se dispara cuando las condiciones definidas en el alerting rule son verdaderas. Las alartas proveen de una notificacion
+Silences: El silencio se puede aplicar a una alerta para evitar que se envíen notificaciones cuando las condiciones para una alerta son verdaderas. Puede silenciar una alerta después de la notificación inicial, mientras trabaja para resolver el problema subyacente.
+
+Mostrar el acceso a las alertas
+
+Crear una alerta rule para mariadb con los yml
+
+Crear tres tablas aleatorias (port forward)
+
+Verificar la alerta disparada
+
+Eliminar el prometheusrule
+
+Crear la nueva que apunta directo a prometheus con el yaml
+
+Verificar la alerta disparada
+
+

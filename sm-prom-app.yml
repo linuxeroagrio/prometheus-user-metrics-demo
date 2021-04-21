@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: prom-app-monitor
+  name: prom-app-monitor
+spec:
+  endpoints:
+  - interval: 30s
+    port: web
+    scheme: http
+  selector:
+    matchLabels:
+      app: prom-app
