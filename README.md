@@ -187,3 +187,44 @@ Los pasos para desplegar una aplicación que hace uso de exporter de Prometheus 
   - Seleccionar **Custom Query**, escribir un PromQL de Prometheus (En el ejemplo, se ejecuta la visualización de la métrica **mysql_up** y presionar **Enter**, se mostrará una gráfica si el PromQL esta correctamente formado. 
 
       ![QueryApp2](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/queryapp2.png)
+# Configuración de Alertas haciendo uso de CRD PrometheusRule
+En esta sección, se mostraá como configurar una alerta en la base de datos mariadb desplegada y configurada en la sección anterior. Los pasos para configurar alertas en las métricas de los proyectos definidos por el usuario, son los siguientes:
+1. **Asegurarse de trabajar en el proyecto metrics-demo:**
+  - En una terminal, seleccionar el proyecto **metrics-demo**
+      ```bash
+      oc project metrics-demo
+      ``` 
+2. **Configuración de la alerta:**
+  - Crear el CRD PrometheusRule **mariadb-alert-rules** de acuerdo a la definición encontrada en los archivos **alert{1,2}-mariadb-create-table.yml**. La estructura especifica el disparo de una alarma de severidad crítica si se han ejecutado 2 ó más creaciones de tabla (Mediante el comando CREATE TABLE), para que sea disparada, la condición debera sostenerse por 1 segundo o más.
+      ```bash
+      oc create -f alert1-mariadb-create-table.yml -n metrics-demo
+      ```
+      ó
+      
+      ```bash
+      oc create -f alert2-mariadb-create-table.yml -n metrics-demo
+      ```
+      > Nota: Crear solo uno de las 2 definiciones mostradas. La diferencia entre **alert1-mariadb-create-table.yml** y **alert2-mariadb-create-table.yml** es que la primera regla se despliega para ser tratada por el componente **thanos-ruler**, mientras que la segunda, es desplegada directamente en **Prometheus**. La aplicación de la segunda es recomendada, cuando en ninguna de las regas es utilizada una métrica del sistema, lo que ayuda a mejorar el rendimiento de ejecución de la misma.
+3. **Forzar Disparo de la Alarma:**
+  - En la consola de administración de OpenShift, sleccionar la vista **Administrator** e ir a **Monitoring**->**Alerting** . Eliminar el filtro **Platform** y agregar el filtro **User**. El resultado es que no exista ninguna alarma relacionada a la regla **create-table-alert**
+
+      ![User Alerting Rules](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/UserAlerts1.png)
+  - En la terminal, hacer un port forward al puerto 3306 al pod de mariadb.
+      ```bash
+      oc port-forward $(oc get pods --no-headers -o custom-columns=":metadata.name" -l deployment=mariadb -n metrics-demo) 3306:3306
+      ```
+  - En otra terminar, conectarse a la base de datos.
+      ```bash
+      mysql -u root -proot -h 127.0.0.1 -P 3306 --protocol=TCP database
+      ```
+  - Crear dos tablas.
+      ```sql
+      CREATE TABLE uno(uno INT);
+      CREATE TABLE dos(dos INT);
+      exit
+      ```
+  - En la consola de OpenShift, validar el disparo de la alerta.
+
+      ![Disparo Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/disparoalerta1.png)
+      ![Inforamación Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/informacionalerta1.png)
+      ![Visualizacion Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/visualizacionalerta1.png)
