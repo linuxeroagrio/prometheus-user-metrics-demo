@@ -276,9 +276,15 @@ En esta sección, se mostraá como desplegar un dashboard en Grafana haciendo us
 Se ha realizado la configuración de OpenShift para activar el monitoreo de métricas en los proyectos definidos por el usuario, y se ha realizado la visualización de métricas y configuración alertas tanto en la consola de OpenShift como en una instalación de Grafana haciendo uso del operator comunitario para dos aplicaciones desplegadas. 
 # Referencias
 [Stack de Monitoreo en OCP 4.6](https://docs.openshift.com/container-platform/4.6/monitoring/)
+
 [Documentación Oficial de Prometheus](https://prometheus.io/docs/introduction/overview/)
+
 [Client Libraries de Prometheus](https://prometheus.io/docs/instrumenting/clientlibs/)
+
 [Exporters de Prometheus](https://prometheus.io/docs/instrumenting/exporters/)
+
 [Exporter de MySQL](https://github.com/prometheus/mysqld_exporter)
+
 [Documentación del Operador de Grafana](https://github.com/integr8ly/grafana-operator/tree/v3.10.0/documentation)
+
 [Configuración de Grafana](https://grafana.com/docs/grafana/latest/administration/configuration/)
