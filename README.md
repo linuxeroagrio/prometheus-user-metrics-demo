@@ -1,7 +1,7 @@
 # prometheus-user-metrics-demo
 Despliegue de 2 aplicaciones en OpenShift 4.6 que exponen métricas para prometheus en un proyecto definido por el usuario. La primera aplicación hace uso de la librería cliente de Prometheus del leguaje GO para exponer sus métricas en el contexto /metrics; en la cual se realiza la configuración de ServiceMonitor para habilitar el monitoreo a nivel de Servicio. La segunda aplicación hace uso del exporter MySQL oficial de Prometheus para realizar su exposición  en el contexto /metrics y se hace uso de PodMonitor para habilitar el monitoreo a nivel de Pod. Existen pasos en los cuales se crean rutas, los cuales se pueden omitir, ya que son meramente de validación.
 
-Una vez deplegadas ambas aplicaciones, es posible visualizarlas en la consola de OCP y Grafana (mediante la instalación del Operador Comunitario de Grafana). Se realiza la creación de alertas y canales de notificación.
+Una vez deplegadas ambas aplicaciones, es posible visualizar las métricas expuestas en la consola de OCP y Grafana (mediante la instalación del Operador Comunitario de Grafana). 
 
 # Configuración Previa
 Se debe habilitar el monitoreo de proyectos definidos por el usuario, instalar Grafana Operator y realizar las configuraciones necesarias para Grafana tenga acceso a las métricas en los proyecyor definidos por el usuario y de sistema.
@@ -213,7 +213,7 @@ En esta sección, se mostraá como configurar una alerta en la base de datos mar
       ```bash
       oc port-forward $(oc get pods --no-headers -o custom-columns=":metadata.name" -l deployment=mariadb -n metrics-demo) 3306:3306
       ```
-  - En otra terminar, conectarse a la base de datos.
+  - En otra terminal, conectarse a la base de datos.
       ```bash
       mysql -u root -proot -h 127.0.0.1 -P 3306 --protocol=TCP database
       ```
@@ -228,3 +228,57 @@ En esta sección, se mostraá como configurar una alerta en la base de datos mar
       ![Disparo Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/disparoalerta1.png)
       ![Inforamación Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/informacionalerta1.png)
       ![Visualizacion Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/visualizacionalerta1.png)
+# Configuración de DashBoard en Grafana para visualización de métricas en proyectos definidos por el usuario
+En esta sección, se mostraá como desplegar un dashboard en Grafana haciendo uso del CRD GrafanaDashboard.
+1. **Asegurarse de trabajar en el proyecto custom-grafana:**
+  - En una terminal, seleccionar el proyecto **custom-grafana**
+      ```bash
+      oc project custom-grafana
+      ``` 
+2. **Creación y validación del Dashboard:**
+  - Crear el CRD GrafanaDashBoard **create-tables-mysql** de acuerdo a la definición encontrada en el archivo **grafana-dashboard.yaml**. La estructura especifica la definición de un dashboard simple que muestra el conteo de la ejecución del comando **CREATE TABLE** en una base de datos MariaDB, además, configura una alerta que se dispara cuando se ha ejecutado el comando más de 5 veces en un periodo sostenido de 1 minuto por una evaluación cada 30 segundos.
+      ```bash
+      oc create -f grafana-dashboard.yml -n custom-grafana
+      ```
+  - En la interfaz de Grafana ir a **Dashboargs**->**Manage**:
+
+      ![DashBoards Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/DashboardsGrafana.png)
+  - Seleccionar el Dashboard **create-tables-mysql**, visualizar la recolección de la métrica de creación de tablas.
+
+      ![DashBoards Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/dashboardGrafanaCreateTable.png)
+  - Seleccionar el nombre del DashBoard y Dar Click en Editar. Visualizar el query y la configración de la alarma.
+
+      ![EditDashBoard](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/editDashboard.png)
+      ![Query DashBoard Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/QueryDashBoard.png)
+      ![Grafana Alert Config](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaAlertConfig.png)
+3. **Forzar Disparo de la Alarma:**
+  - En la terminal, hacer un port forward al puerto 3306 al pod de mariadb.
+      ```bash
+      oc port-forward $(oc get pods --no-headers -o custom-columns=":metadata.name" -l deployment=mariadb -n metrics-demo) 3306:3306
+      ```
+  - En otra terminal, conectarse a la base de datos.
+      ```bash
+      mysql -u root -proot -h 127.0.0.1 -P 3306 --protocol=TCP database
+      ```
+  - Crear cuatro tablas.
+      ```sql
+      CREATE TABLE tres(tres INT);
+      CREATE TABLE cuatro(cuatro INT);
+      CREATE TABLE cinco(cinco INT);
+      CREATE TABLE seis(seis INT);
+      exit
+      ```
+  - En la interfaz de Grafana, esperar al menos 1 minuto y validar el disparo de la alerta.
+
+      ![Navegacion a Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/navegacionGrafanaAlerta.png)
+      ![Estado de la alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/EstadoAlertaGrafana.png)
+# Conclusion
+Se ha realizado la configuración de OpenShift para activar el monitoreo de métricas en los proyectos definidos por el usuario, y se ha realizado la visualización de métricas y configuración alertas tanto en la consola de OpenShift como en una instalación de Grafana haciendo uso del operator comunitario para dos aplicaciones desplegadas. 
+# Referencias
+[Stack de Monitoreo en OCP 4.6](https://docs.openshift.com/container-platform/4.6/monitoring/)
+[Documentación Oficial de Prometheus](https://prometheus.io/docs/introduction/overview/)
+[Client Libraries de Prometheus](https://prometheus.io/docs/instrumenting/clientlibs/)
+[Exporters de Prometheus](https://prometheus.io/docs/instrumenting/exporters/)
+[Exporter de MySQL](https://github.com/prometheus/mysqld_exporter)
+[Documentación del Operador de Grafana](https://github.com/integr8ly/grafana-operator/tree/v3.10.0/documentation)
+[Configuración de Grafana](https://grafana.com/docs/grafana/latest/administration/configuration/)
