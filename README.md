@@ -34,23 +34,23 @@ Las siguientes actividades deberán ejecutarse con un usuario que tenga el rol *
       ```
   - En la consola de OpenShift, navegar hacia **OperatorHub** y buscar **Grafana**
       
-      ![Búsqueda de Grafana en OperatorHub](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/BusquedaDeGrafanaOperatorHub.png)
+      ![Búsqueda de Grafana en OperatorHub](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/BusquedaDeGrafanaOperatorHub.png)
   - Seleccionar **Operator Grafana**, presionar **Continue**
   - Aceptar los términos
       
-      ![Términos de los operadoradores comunitarions](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/disclaimer.png)
+      ![Términos de los operadoradores comunitarions](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/disclaimer.png)
   - Presionar **Install**
 
-      ![Información del operador Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaOperatorInfo.png)
+      ![Información del operador Grafana](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/GrafanaOperatorInfo.png)
   - Presionar nuevamente **Install** para aceptar la configuración por defecto y desplegar en el proyecto **custom-grafana**
 
-      ![Grafana Operator Subscribe Options](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaOperatorSubscribeOptions.png)
+      ![Grafana Operator Subscribe Options](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/GrafanaOperatorSubscribeOptions.png)
   - Verificar la instalación en progreso
 
-      ![Búsqueda de Grafana en OperatorHubInstalación de Grafana Operator en Progreso](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/InstallingGrafanaOperator.png)
+      ![Búsqueda de Grafana en OperatorHubInstalación de Grafana Operator en Progreso](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/InstallingGrafanaOperator.png)
   - Verificar Operador Instalado Correctamente
 
-      ![Operador Instalado Correctamente](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaOperatorInstalled.png)
+      ![Operador Instalado Correctamente](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/GrafanaOperatorInstalled.png)
 3. **Configurar Grafana Personalizado para visualizar las métricas de sistema y las de proyectos definidos por el usuario:**
   - En una terminal, crear el CRD grafana definido en el archivo **grafana-intance.yaml**; el cual generará la instancia de Grafana **grafana-instance** que tendra las credenciales **root**/**secret**
       ```bash
@@ -70,26 +70,26 @@ Las siguientes actividades deberán ejecutarse con un usuario que tenga el rol *
       ```
       Este paso generará una configuración de Origen de Datos de Prometheus para grafana que apunte al servicio de **thanos-querier** en el proyecto **openshift-monitoring**; el cual es un punto central para la recolección de métricas de sistema y de proyectos definidos por el usuario, de acuerdo al diagrama siguiente:
 
-      ![Configuración de Origen de Datos](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/DataSourceThanosPrometheusGrafana.png)
+      ![Configuración de Origen de Datos](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/DataSourceThanosPrometheusGrafana.png)
   - Para validar que la configuración sea correcta, ingresar a Grafana, primero, obtener la ruta:
       ```bash
       oc get routes -n custom-grafana
       ```
   - Acceder en un explorador web a la URL de Grafana, dar click en **Sign In**:
 
-      ![Sig In Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/SignInGrafana.png)
+      ![Sig In Grafana](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/SignInGrafana.png)
   - Ingresar como usuario administrativo con las credenciales **root**/**secret**:
 
-      ![Log In Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/LogInGrafana.png)
+      ![Log In Grafana](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/LogInGrafana.png)
   - Ir a **Configuration**->**Data Sources**:
 
-      ![Seleccionar Data Sources Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/MenuDataSourcesGrafana.png)
+      ![Seleccionar Data Sources Grafana](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/MenuDataSourcesGrafana.png)
   - Seleccionar el Origen de Datos **Prometheus**:
 
-      ![Seleccionar Prometheus DS](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/PrometheusDS.png)
+      ![Seleccionar Prometheus DS](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/PrometheusDS.png)
   - Validar configuración y sin modificar, hacer click en **Save & Test**:
 
-      ![Test Data Source](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/TestPrometheusDS.png)
+      ![Test Data Source](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/TestPrometheusDS.png)
 
 # Despliegue de Aplicación prom-app: Uso Librería Cliente Prometheus y Service Monitor
 Los pasos para desplegar una aplicación que hace uso de una librería cliente de Prometheus para exposición de métricas y habilitar su visualización en la consola de OpenShift a traves del CRD ServiceMonitor son los siguientes:
@@ -123,12 +123,12 @@ Los pasos para desplegar una aplicación que hace uso de una librería cliente d
       ```
   - En la consola de administración de OpenShift, sleccionar la vista **Developer** e ir a **Monitoring** pestaña **Metrics**.
 
-      ![MetricsApp1](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/metricsapp1.png)
+      ![MetricsApp1](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/metricsapp1.png)
 
       > Asegurarse que el proyecto metrics-demo este seleccionado en la parte superior.
   - Seleccionar **Custom Query**, escribir un PromQL de Prometheus (En el ejemplo, se ejecuta la visualización de la métrica **http_request_duration_seconds_count{code="200",handler="found",method="get"}** y presionar **Enter**, se mostrará una gráfica si el PromQL esta correctamente formado. 
 
-      ![QueryApp1](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/queryapp1.png)
+      ![QueryApp1](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/queryapp1.png)
 # Despliegue de Base de Datos MariDB: Uso Exporter Prometheus y Pod Monitor
 Los pasos para desplegar una aplicación que hace uso de exporter de Prometheus de Prometheus para exposición de métricas y habilitar su visualización en la consola de OpenShift a traves del CRD PodMonitor son los siguientes:
 1. **Asegurarse de trabajar en el proyecto metrics-demo:**
@@ -160,7 +160,7 @@ Los pasos para desplegar una aplicación que hace uso de exporter de Prometheus 
       ```
       Por Ejemplo:
 
-      ![ExporterContainerDefinition](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/exporterContainerDefinition.png)
+      ![ExporterContainerDefinition](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/exporterContainerDefinition.png)
 4. **[Opcional] Validación de exposición de métricas en el contexto /metrics:**
   - Crear el servicio **mariadb-metrics** que apunta al puerto 9104 del pod **mariadb**
       ```bash
@@ -181,12 +181,12 @@ Los pasos para desplegar una aplicación que hace uso de exporter de Prometheus 
       ```
   - En la consola de administración de OpenShift, sleccionar la vista **Developer** e ir a **Monitoring** pestaña **Metrics**.
 
-      ![MetricsApp1](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/metricsapp1.png)
+      ![MetricsApp1](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/metricsapp1.png)
 
       > Asegurarse que el proyecto metrics-demo este seleccionado en la parte superior.
   - Seleccionar **Custom Query**, escribir un PromQL de Prometheus (En el ejemplo, se ejecuta la visualización de la métrica **mysql_up** y presionar **Enter**, se mostrará una gráfica si el PromQL esta correctamente formado. 
 
-      ![QueryApp2](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/queryapp2.png)
+      ![QueryApp2](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/queryapp2.png)
 # Configuración de Alertas haciendo uso de CRD PrometheusRule
 En esta sección, se mostraá como configurar una alerta en la base de datos mariadb desplegada y configurada en la sección anterior. Los pasos para configurar alertas en las métricas de los proyectos definidos por el usuario, son los siguientes:
 1. **Asegurarse de trabajar en el proyecto metrics-demo:**
@@ -208,7 +208,7 @@ En esta sección, se mostraá como configurar una alerta en la base de datos mar
 3. **Forzar Disparo de la Alarma:**
   - En la consola de administración de OpenShift, sleccionar la vista **Administrator** e ir a **Monitoring**->**Alerting** . Eliminar el filtro **Platform** y agregar el filtro **User**. El resultado es que no exista ninguna alarma relacionada a la regla **create-table-alert**
 
-      ![User Alerting Rules](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/UserAlerts1.png)
+      ![User Alerting Rules](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/UserAlerts1.png)
   - En la terminal, hacer un port forward al puerto 3306 al pod de mariadb.
       ```bash
       oc port-forward $(oc get pods --no-headers -o custom-columns=":metadata.name" -l deployment=mariadb -n metrics-demo) 3306:3306
@@ -225,9 +225,9 @@ En esta sección, se mostraá como configurar una alerta en la base de datos mar
       ```
   - En la consola de OpenShift, validar el disparo de la alerta.
 
-      ![Disparo Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/disparoalerta1.png)
-      ![Inforamación Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/informacionalerta1.png)
-      ![Visualizacion Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/visualizacionalerta1.png)
+      ![Disparo Alerta](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/disparoalerta1.png)
+      ![Inforamación Alerta](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/informacionalerta1.png)
+      ![Visualizacion Alerta](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/visualizacionalerta1.png)
 # Configuración de DashBoard en Grafana para visualización de métricas en proyectos definidos por el usuario
 En esta sección, se mostraá como desplegar un dashboard en Grafana haciendo uso del CRD GrafanaDashboard.
 1. **Asegurarse de trabajar en el proyecto custom-grafana:**
@@ -242,15 +242,15 @@ En esta sección, se mostraá como desplegar un dashboard en Grafana haciendo us
       ```
   - En la interfaz de Grafana ir a **Dashboargs**->**Manage**:
 
-      ![DashBoards Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/DashboardsGrafana.png)
+      ![DashBoards Grafana](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/DashboardsGrafana.png)
   - Seleccionar el Dashboard **create-tables-mysql**, visualizar la recolección de la métrica de creación de tablas.
 
-      ![DashBoards Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/dashboardGrafanaCreateTable.png)
+      ![DashBoards Grafana](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/dashboardGrafanaCreateTable.png)
   - Seleccionar el nombre del DashBoard y Dar Click en Editar. Visualizar el query y la configración de la alarma.
 
-      ![EditDashBoard](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/editDashboard.png)
-      ![Query DashBoard Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/QueryDashBoard.png)
-      ![Grafana Alert Config](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaAlertConfig.png)
+      ![EditDashBoard](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/editDashboard.png)
+      ![Query DashBoard Grafana](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/QueryDashBoard.png)
+      ![Grafana Alert Config](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/GrafanaAlertConfig.png)
 3. **Forzar Disparo de la Alarma:**
   - En la terminal, hacer un port forward al puerto 3306 al pod de mariadb.
       ```bash
@@ -270,8 +270,8 @@ En esta sección, se mostraá como desplegar un dashboard en Grafana haciendo us
       ```
   - En la interfaz de Grafana, esperar al menos 1 minuto y validar el disparo de la alerta.
 
-      ![Navegacion a Alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/navegacionGrafanaAlerta.png)
-      ![Estado de la alerta](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/EstadoAlertaGrafana.png)
+      ![Navegacion a Alerta](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/navegacionGrafanaAlerta.png)
+      ![Estado de la alerta](https://raw.githubusercontent.com/jvarela01/prometheus-user-metrics-demo/main/images/EstadoAlertaGrafana.png)
 # Conclusion
 Se ha realizado la configuración de OpenShift para activar el monitoreo de métricas en los proyectos definidos por el usuario, y se ha realizado la visualización de métricas y configuración alertas tanto en la consola de OpenShift como en una instalación de Grafana haciendo uso del operator comunitario para dos aplicaciones desplegadas. 
 # Referencias
