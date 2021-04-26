@@ -1,64 +1,35 @@
 # prometheus-user-metrics-demo
-Despliegue de 2 aplicaciones en OpenShift 4.6 que exponen métricas para prometheus en un proyecto definido por el usuario.
+Despliegue de 2 aplicaciones en OpenShift 4.6 que exponen métricas para prometheus en un proyecto definido por el usuario; visualizarlas en la consola de OCP y Grafana (mediante la instalación del Operador Comunitario de Grafana). Creación de alertas y canales de notificación.
 
-**Instrucciones:**
+# Configuración Previa
+Se debe habilitar el monitoreo de proyectos definidos por el usuario, instalar Grafana Operator y realizar las configuraciones necesarias para Grafana tenga acceso a las métricas en los proyecyor definidos por el usuario y de sistema.
 
- 1. Con un usuario en rol **cluster-admin**, habilitar el monitoreo de proyectos definidos por el usuario:
-  - Agregar  **cluster-monitoring-config** en el proyecto  **openshift-monitoring**
-    ```yaml
-    enableUserWorkload: true
-    ```
-    Por Ejemplo:
-    ```yaml
-    apiVersion:  v1
+Las siguientes actividades deberán ejecutarse con un usuario que tenga el rol **cluster-admin**.
+
+1. **Habiltar el monitoreo de métricas en proyectos definidos por el usuario:**
+  - Editar el configmap  **cluster-monitoring-config** en el proyecto  **openshift-monitoring**
+      ```yaml
+      enableUserWorkload: true
+      ```
+      Por Ejemplo:
+      ```yaml
+      apiVersion:  v1
       kind:  ConfigMap
-        metadata:
-          name:  cluster-monitoring-config
-          namespace:  openshift-monitoring
-        data:
-          config.yaml:  |
-            enableUserWorkload: true
-    ```
- 2. Crear el proyecto **metrics-demo**
-    ```
-    oc new-project metrics-demo
-    ```
- 3. Para la aplicación prom-app, la cual hace uso de client library GO para prometheus:
-  - Crear el despliegue y el servicio para la aplicación prom-app
-    ```
-    oc create -f prom-app.yml
-    ```
-  - Crear el CRD Service Monitor
-    ```
-    oc create -f sm-prom-app.yml
-    ```
- 4. Para la base de datos mariadb, la cual hace uso de exporter para prometheus:
-  - Crear la aplicación mariadb
-    ```
-    oc new-app --name=mariadb --docker-image=docker.io/library/mariadb -e MYSQL_USER=user -e MYSQL_PASSWORD=user -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=database
-    ```
-  - Editar el deployment mariadb, y agregar el exporter de mysql
-    ```
-    oc edit deployment mariadb
-    ```
-    Quedando de la siguiente forma:
-    ```yaml
-    - env:
-        - name: DATA_SOURCE_NAME
-          value: "root:root@(127.0.0.1:3306)/database"
-        image: prom/mysqld-exporter
-        name: mariadb-exporter
-        ports:
-        - containerPort: 9104
-          protocol: TCP
-          name: mariadb-metrics
-    ```
-  - Crear el CRD Pod Monitor
-    ```
-    oc create -f pm-mariadb.yml
-    ```
- 5. Crear el CRD prometheusrule, el cual dispara una alerta de severidad critica cuando se han generado 2 o más tablas en la base de datos **database**
-    ```
-    oc create -f alert{1,2}-mariadb-create-table.yml
-    ```
-    Se puede elegir cualquiera de los yaml, la diferencia es que el **alert1-mariadb-create-table.yml** genera una regla que pasa por thanos-rule, mientras que **alert2-mariadb-create-table.yml** se depliega directamente en prometheus.
+      metadata:
+        name:  cluster-monitoring-config
+        namespace:  openshift-monitoring
+      data:
+        config.yaml:  |
+          enableUserWorkload: true
+      ```
+      > Nota: En caso de que el config map **cluster-monitoring-config** no exista, deberá generarse con la estructura mostrada arriba.
+2. **Instalar Grafana Operator Comunitario:**
+Debido a que el Grafana instalado en la versión por defecto de OpenShift es de solo lectura, para conseguir visualizar las métricas en los proyectos definidos por el usuario y crear Dashboards personalizados, es necesario instalar la versión comunitaria de Grafana Operator desde Operator Hub.
+  - Crear el proyecto en donde se instalará el operador (En este caso se configuro **custom-grafana**)
+      ```
+      oc new-proyect custom-grafana
+      ```
+  - Navegar hacia **OperatorHub** y buscar el **Grafana**.Crear el proyecto en donde se instalará el operador (En este caso se configuro **custom-grafana**)
+      ```
+      oc new-proyect custom-grafana
+      ```
