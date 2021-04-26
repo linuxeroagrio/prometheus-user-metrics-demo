@@ -71,3 +71,22 @@ Las siguientes actividades deberán ejecutarse con un usuario que tenga el rol *
       Este paso generará una configuración de Origen de Datos de Prometheus para grafana que apunte al servicio de **thanos-querier** en el proyecto **openshift-monitoring**; el cual es un punto central para la recolección de métricas de sistema y de proyectos definidos por el usuario, de acuerdo al diagrama siguiente:
 
       ![Configuración de Origen de Datos](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/DataSourceThanosPrometheusGrafana.png)
+  - Para validar que la configuración sea correcta, ingresar a Grafana, primero, obtener la ruta:
+      ```
+      oc get routes -n custom-grafana
+      ```
+  - Acceder en un explorador web a la URL de Grafana, dar click en **Sign In**:
+
+      ![Sig In Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/SignInGrafana.png)
+  - Ingresar como usuario administrativo con las credenciales **root**/**secret**:
+
+      ![Log In Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/LogInGrafana.png)
+  - Ir a **Configuration**->**Data Sources**:
+
+      ![Seleccionar Data Sources Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/MenuDataSourcesGrafana.png)
+  - Seleccionar el Origen de Datos **Prometheus**:
+
+      ![Seleccionar Prometheus DS](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/PrometheusDS.png)
+  - Validar configuración y sin modificar, hacer click en **Save & Test**:
+
+      ![Test Data Source](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/TestPrometheusDS.png)
