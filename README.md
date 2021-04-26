@@ -29,7 +29,16 @@ Debido a que el Grafana instalado en la versión por defecto de OpenShift es de 
       ```
       oc new-proyect custom-grafana
       ```
-  - Navegar hacia **OperatorHub** y buscar el **Grafana**.Crear el proyecto en donde se instalará el operador (En este caso se configuro **custom-grafana**)
-      ```
-      oc new-proyect custom-grafana
-      ```
+  - En la consola de OpenShift, navegar hacia **OperatorHub** y buscar **Grafana**.
+      ![Búsqueda de Grafana en OperatorHub](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/BusquedaDeGrafanaOperatorHub.png)
+  - Seleccionar **Operator Grafana**, presionar **Continue**
+  - Aceptar los términos
+      ![Términos de los operadoradores comunitarions](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/disclaimer.png)
+  - Presionar **Install**
+      ![Información del operador Grafana](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaOperatorInfo.png)
+  - Presionar nuevamente **Install** para aceptar la configuración por defecto y desplegar en el proyecto **custom-grafana**
+      ![Grafana Operator Subscribe Options](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaOperatorSubscribeOptions.png)
+  - Verificar la instalación en progreso
+      ![Búsqueda de Grafana en OperatorHubInstalación de Grafana Operator en Progreso](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/InstallingGrafanaOperator.png)
+  - Verificar Operador Instalado Correctamente
+      ![Operador Instalado Correctamente](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/GrafanaOperatorSubscribeOptions.png)
