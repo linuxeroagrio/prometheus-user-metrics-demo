@@ -91,7 +91,7 @@ Las siguientes actividades deberán ejecutarse con un usuario que tenga el rol *
 
       ![Test Data Source](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/TestPrometheusDS.png)
 
-# Despliegue de Aplicación prom-app: Uso de Service Monitor
+# Despliegue de Aplicación prom-app: Uso Librería Cliente Prometheus y Service Monitor
 Los pasos para desplegar una aplicación que hace uso de una librería cliente de Prometheus para exposición de métricas y habilitar su visualización en la consola de OpenShift a traves del CRD ServiceMonitor son los siguientes:
 1. **Creación del proyecto metrics-demo como espacio de trabajo para el despliegue de las aplicaciones:**
   - En una terminal, crear el proyecto **metrics-demo**
@@ -104,7 +104,7 @@ Los pasos para desplegar una aplicación que hace uso de una librería cliente d
       oc create -f prom-app.yml -n metrics-demo
       ```
 3. **[Opcional] Validación de exposición de métricas en el contexto /metrics:**
-  - Crear la ruta prom-app exponiendo el servicio prom-app
+  - Crear la ruta prom-app exponiendo el servicio **prom-app**
       ```bash
       oc expose service prom-app -n metrics-demo
       ```
@@ -126,6 +126,64 @@ Los pasos para desplegar una aplicación que hace uso de una librería cliente d
       ![MetricsApp1](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/metricsapp1.png)
 
       > Asegurarse que el proyecto metrics-demo este seleccionado en la parte superior.
-  - Seleccionar **Custom Query**, escribir un PromQL de Prometheus (En ele ejemplo, se ejecuta la visualización de la métrica **http_request_duration_seconds_count{code="200",handler="found",method="get"}** y presionar **Enter**, se mostrará una gráfica si el PromQL esta correctamente formado. 
+  - Seleccionar **Custom Query**, escribir un PromQL de Prometheus (En el ejemplo, se ejecuta la visualización de la métrica **http_request_duration_seconds_count{code="200",handler="found",method="get"}** y presionar **Enter**, se mostrará una gráfica si el PromQL esta correctamente formado. 
 
       ![QueryApp1](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/queryapp1.png)
+# Despliegue de Base de Datos MariDB: Uso Exporter Prometheus y Pod Monitor
+Los pasos para desplegar una aplicación que hace uso de exporter de Prometheus de Prometheus para exposición de métricas y habilitar su visualización en la consola de OpenShift a traves del CRD PodMonitor son los siguientes:
+1. **Asegurarse de trabajar en el proyecto metrics-demo:**
+  - En una terminal, seleccionar el proyecto **metrics-demo**
+      ```bash
+      oc project metrics-demo
+      ``` 
+2. **Despliegue de la base de datos:**
+  - Crear la aplicación **mariadb** teniendo como fuenta la imagen de contenedor MariaDB de DockerHub; la creara la base de datos **database** con las credenciales **user**/**user** para usuario común y **root/root** para usuario privilegiado.
+      ```bash
+      oc new-app --name=mariadb --docker-image=docker.io/library/mariadb -e MYSQL_USER=user -e MYSQL_PASSWORD=user -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=database -n metrics-demo
+      ```
+3. **Configurar Exporter de Prometheus:**
+  - Editar el despliegue **mariadb**, agrgando el contenedor con la imagen oficial del exporter de Prometheus para MySQL. En la definición se grega la variable de entorno DATA_SOYRCE que apunta la base de datos y se define el puerto por el cual será expuesto el servicio web que dará lugar al contexto /metrics. 
+      ```bash
+      oc edit deployment/mariadb -n metrics-demo
+      ```
+      Se debera agregar a la sección containers:
+      ```yaml
+      - env:
+        - name: DATA_SOURCE_NAME
+          value: root:root@(127.0.0.1:3306)/database
+        image: prom/mysqld-exporter
+        name: mariadb-exporter
+        ports:
+        - containerPort: 9104
+          name: mariadb-metrics
+          protocol: TCP
+      ```
+      Por Ejemplo:
+
+      ![ExporterContainerDefinition](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/exporterContainerDefinition.png)
+4. **[Opcional] Validación de exposición de métricas en el contexto /metrics:**
+  - Crear el servicio **mariadb-metrics** que apunta al puerto 9104 del pod **mariadb**
+      ```bash
+      oc expose deployment/mariadb --name=mariadb-metrics --port=9104 --target-port=9104 -n metrics-demo
+      ```
+  - Crear la ruta **mariadb-metrics** exponiendo el servicio **mariadb-metrics**
+      ```bash
+      oc expose service mariadb-metrics -n metrics-demo
+      ```
+  - Obtener las métricas expuestas
+      ```bash
+      curl $(oc get routes mariadb-metrics --template={{.spec.host}} -n metrics-demo)/metrics
+      ```
+5. **Habilitar y Visualizar las métricas de la base de datos en OpenShift:**
+  - Crear el CRD PodMonitor **pod-mariadb-monitor** de acuerdo a la definición del archivo **pm-mariadb.yml**
+      ```bash
+      oc create -f pm-mariadb.yml -n metrics-demo
+      ```
+  - En la consola de administración de OpenShift, sleccionar la vista **Developer** e ir a **Monitoring** pestaña **Metrics**.
+
+      ![MetricsApp1](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/metricsapp1.png)
+
+      > Asegurarse que el proyecto metrics-demo este seleccionado en la parte superior.
+  - Seleccionar **Custom Query**, escribir un PromQL de Prometheus (En el ejemplo, se ejecuta la visualización de la métrica **mysql_up** y presionar **Enter**, se mostrará una gráfica si el PromQL esta correctamente formado. 
+
+      ![QueryApp2](https://gitlab.consulting.redhat.com/consulting-mw-redhat-mx/prometheus-user-metrics-demo/-/raw/main/images/queryapp2.png)
